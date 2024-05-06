@@ -13,10 +13,11 @@ import (
 )
 
 const (
-	ConfigMediaType         = "application/vnd.ironcore.image.config.v1alpha1+json"
-	RootFSLayerMediaType    = "application/vnd.ironcore.image.rootfs.v1alpha1.rootfs"
-	InitRAMFSLayerMediaType = "application/vnd.ironcore.image.initramfs.v1alpha1.initramfs"
-	KernelLayerMediaType    = "application/vnd.ironcore.image.vmlinuz.v1alpha1.vmlinuz"
+	ConfigMediaType            = "application/vnd.ironcore.image.config.v1alpha1+json"
+	RootFSLayerMediaType       = "application/vnd.ironcore.image.rootfs.v1alpha1.rootfs"
+	RootFSLayerLegacyMediaType = "application/vnd.onmetal.image.rootfs.v1alpha1.rootfs"
+	InitRAMFSLayerMediaType    = "application/vnd.ironcore.image.initramfs.v1alpha1.initramfs"
+	KernelLayerMediaType       = "application/vnd.ironcore.image.vmlinuz.v1alpha1.vmlinuz"
 )
 
 type Config struct {
@@ -74,6 +75,8 @@ func ResolveImage(ctx context.Context, ociImg image.Image) (*Image, error) {
 		case KernelLayerMediaType:
 			img.Kernel = layer
 		case RootFSLayerMediaType:
+			img.RootFS = layer
+		case RootFSLayerLegacyMediaType:
 			img.RootFS = layer
 		default:
 			return nil, fmt.Errorf("unknown layer type %q", layer.Descriptor().MediaType)
