@@ -13,11 +13,14 @@ import (
 )
 
 const (
-	ConfigMediaType            = "application/vnd.ironcore.image.config.v1alpha1+json"
-	RootFSLayerMediaType       = "application/vnd.ironcore.image.rootfs.v1alpha1.rootfs"
-	RootFSLayerLegacyMediaType = "application/vnd.onmetal.image.rootfs.v1alpha1.rootfs"
-	InitRAMFSLayerMediaType    = "application/vnd.ironcore.image.initramfs.v1alpha1.initramfs"
-	KernelLayerMediaType       = "application/vnd.ironcore.image.vmlinuz.v1alpha1.vmlinuz"
+	ConfigMediaType               = "application/vnd.ironcore.image.config.v1alpha1+json"
+	ConfigLegacyMediaType         = "application/vnd.onmetal.image.config.v1alpha1+json"
+	RootFSLayerMediaType          = "application/vnd.ironcore.image.rootfs.v1alpha1.rootfs"
+	RootFSLayerLegacyMediaType    = "application/vnd.onmetal.image.rootfs.v1alpha1.rootfs"
+	InitRAMFSLayerMediaType       = "application/vnd.ironcore.image.initramfs.v1alpha1.initramfs"
+	InitRAMFSLayerLegacyMediaType = "application/vnd.onmetal.image.initramfs.v1alpha1.initramfs"
+	KernelLayerMediaType          = "application/vnd.ironcore.image.vmlinuz.v1alpha1.vmlinuz"
+	KernelLayerLegacyMediaType    = "application/vnd.onmetal.image.vmlinuz.v1alpha1.vmlinuz"
 )
 
 type Config struct {
@@ -50,6 +53,10 @@ func SetupContext(ctx context.Context) context.Context {
 	ctx = remotes.WithMediaTypeKeyPrefix(ctx, RootFSLayerMediaType, "layer-")
 	ctx = remotes.WithMediaTypeKeyPrefix(ctx, InitRAMFSLayerMediaType, "layer-")
 	ctx = remotes.WithMediaTypeKeyPrefix(ctx, KernelLayerMediaType, "layer-")
+	ctx = remotes.WithMediaTypeKeyPrefix(ctx, ConfigLegacyMediaType, "config-")
+	ctx = remotes.WithMediaTypeKeyPrefix(ctx, RootFSLayerLegacyMediaType, "layer-")
+	ctx = remotes.WithMediaTypeKeyPrefix(ctx, InitRAMFSLayerLegacyMediaType, "layer-")
+	ctx = remotes.WithMediaTypeKeyPrefix(ctx, KernelLayerLegacyMediaType, "layer-")
 	return ctx
 }
 
@@ -72,7 +79,11 @@ func ResolveImage(ctx context.Context, ociImg image.Image) (*Image, error) {
 		switch layer.Descriptor().MediaType {
 		case InitRAMFSLayerMediaType:
 			img.InitRAMFs = layer
+		case InitRAMFSLayerLegacyMediaType:
+			img.InitRAMFs = layer
 		case KernelLayerMediaType:
+			img.Kernel = layer
+		case KernelLayerLegacyMediaType:
 			img.Kernel = layer
 		case RootFSLayerMediaType:
 			img.RootFS = layer
