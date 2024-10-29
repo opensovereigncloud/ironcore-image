@@ -9,6 +9,7 @@ import (
 	"fmt"
 
 	"github.com/containerd/containerd/remotes"
+
 	"github.com/ironcore-dev/ironcore-image/oci/image"
 )
 
@@ -21,6 +22,7 @@ const (
 	InitRAMFSLayerLegacyMediaType = "application/vnd.onmetal.image.initramfs.v1alpha1.initramfs"
 	KernelLayerMediaType          = "application/vnd.ironcore.image.vmlinuz.v1alpha1.vmlinuz"
 	KernelLayerLegacyMediaType    = "application/vnd.onmetal.image.vmlinuz.v1alpha1.vmlinuz"
+	SquashFSLayerMediaType        = "application/vnd.ironcore.image.squashfs.v1alpha1.squashfs"
 )
 
 type Config struct {
@@ -57,6 +59,7 @@ func SetupContext(ctx context.Context) context.Context {
 	ctx = remotes.WithMediaTypeKeyPrefix(ctx, RootFSLayerLegacyMediaType, "layer-")
 	ctx = remotes.WithMediaTypeKeyPrefix(ctx, InitRAMFSLayerLegacyMediaType, "layer-")
 	ctx = remotes.WithMediaTypeKeyPrefix(ctx, KernelLayerLegacyMediaType, "layer-")
+	ctx = remotes.WithMediaTypeKeyPrefix(ctx, SquashFSLayerMediaType, "layer-")
 	return ctx
 }
 
@@ -89,6 +92,8 @@ func ResolveImage(ctx context.Context, ociImg image.Image) (*Image, error) {
 			img.RootFS = layer
 		case RootFSLayerLegacyMediaType:
 			img.RootFS = layer
+		case SquashFSLayerMediaType:
+			img.SquashFS = layer
 		default:
 			return nil, fmt.Errorf("unknown layer type %q", layer.Descriptor().MediaType)
 		}
@@ -116,6 +121,8 @@ type Image struct {
 	Config Config
 	// RootFS is the layer containing the root file system.
 	RootFS image.Layer
+	// SquashFS is the layer containing the root file system.
+	SquashFS image.Layer
 	// InitRAMFs is the layer containing the initramfs / initrd.
 	InitRAMFs image.Layer
 	// Kernel is the layer containing the kernel.
